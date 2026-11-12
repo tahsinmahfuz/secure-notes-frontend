@@ -9,51 +9,61 @@
 </head>
 <body>
   <header class="topbar">
-    <div>
+    <div class="brand-group">
       <strong>Secure Notes</strong>
       <span id="session-info">Not signed in</span>
     </div>
     <div class="api-config">
       <label for="api-base-input">API URL:</label>
-      <input id="api-base-input" type="text" placeholder="Same origin (or https://api-host)">
+      <input id="api-base-input" type="text" placeholder="https://api-host">
       <button id="save-api-btn" type="button">Set</button>
       <button id="logout-btn" type="button" hidden>Logout</button>
     </div>
   </header>
 
-  <nav id="nav-tabs" class="nav-tabs" hidden>
-    <button type="button" class="tab-btn active" data-tab="tab-notes">My Notes</button>
-    <button type="button" class="tab-btn" data-tab="tab-posts">Public Posts</button>
-    <button type="button" class="tab-btn" data-tab="tab-scenarios">MongoDB Scenarios</button>
-    <button type="button" class="tab-btn" data-tab="tab-profile">Profile</button>
-    <button type="button" class="tab-btn" data-tab="tab-admin" id="admin-tab-btn" hidden>Admin Panel</button>
+  <nav id="nav-tabs" class="nav-tabs">
+    <div id="logged-out-tabs" class="tab-group">
+      <button type="button" class="tab-btn active" data-tab="tab-login">Login</button>
+      <button type="button" class="tab-btn" data-tab="tab-register">Register</button>
+      <button type="button" class="tab-btn" data-tab="tab-posts">Public Posts</button>
+    </div>
+    <div id="logged-in-tabs" class="tab-group" hidden>
+      <button type="button" class="tab-btn active" data-tab="tab-notes">My Notes</button>
+      <button type="button" class="tab-btn" data-tab="tab-posts">Public Posts</button>
+      <button type="button" class="tab-btn" data-tab="tab-scenarios">MongoDB Scenarios</button>
+      <button type="button" class="tab-btn" data-tab="tab-profile">Profile</button>
+      <button type="button" class="tab-btn" data-tab="tab-admin" id="admin-tab-btn" hidden>Admin Panel</button>
+    </div>
   </nav>
 
   <div id="status-bar" class="status-bar" hidden></div>
 
   <main class="container">
-    <section id="auth-section" class="grid-2">
-      <div class="panel">
+    <div id="tab-login" class="tab-view auth-container">
+      <div class="panel auth-card">
         <h2>Login</h2>
         <form id="login-form">
           <label>Email
-            <input id="login-email" type="email" required>
+            <input id="login-email" type="email" required placeholder="user@example.com">
           </label>
           <label>Password
             <input id="login-password" type="password" required>
           </label>
-          <button type="submit">Login</button>
+          <button type="submit" class="primary-btn">Login</button>
         </form>
+        <p class="auth-switch">Need an account? <a href="#" id="go-to-register">Register here</a></p>
       </div>
+    </div>
 
-      <div class="panel">
+    <div id="tab-register" class="tab-view auth-container" hidden>
+      <div class="panel auth-card">
         <h2>Register</h2>
         <form id="register-form">
           <label>Name
-            <input id="reg-name" type="text" required>
+            <input id="reg-name" type="text" required placeholder="Full Name">
           </label>
           <label>Email
-            <input id="reg-email" type="email" required>
+            <input id="reg-email" type="email" required placeholder="user@example.com">
           </label>
           <label>Password (min 6 chars)
             <input id="reg-password" type="password" minlength="6" required>
@@ -61,10 +71,11 @@
           <label>Interests (comma-separated)
             <input id="reg-interests" type="text" placeholder="chess, reading">
           </label>
-          <button type="submit">Register</button>
+          <button type="submit" class="primary-btn">Register</button>
         </form>
+        <p class="auth-switch">Already registered? <a href="#" id="go-to-login">Login here</a></p>
       </div>
-    </section>
+    </div>
 
     <div id="tab-notes" class="tab-view" hidden>
       <section id="notes-section" class="panel">
@@ -103,7 +114,7 @@
       </section>
     </div>
 
-    <div id="tab-posts" class="tab-view">
+    <div id="tab-posts" class="tab-view" hidden>
       <section id="posts-section" class="panel">
         <h2>Public Posts</h2>
         <form id="post-form" hidden>

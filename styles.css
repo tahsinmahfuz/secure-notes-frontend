@@ -36,6 +36,43 @@ body {
   margin: 0 auto;
 }
 
+.tab-group {
+  display: flex;
+  gap: 4px;
+}
+
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 0;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 6px;
+  padding: 24px;
+}
+
+.auth-switch {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: #57606a;
+  text-align: center;
+}
+
+.auth-switch a {
+  color: #0969da;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.auth-switch a:hover {
+  text-decoration: underline;
+}
+
 .tab-btn {
   background: none;
   border: none;

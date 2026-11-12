@@ -89,7 +89,7 @@ async function apiRequest(path, options = {}) {
   return data;
 }
 
-let activeTab = "tab-notes";
+let activeTab = "tab-login";
 
 function switchTab(tabId) {
   activeTab = tabId;
@@ -104,16 +104,15 @@ function switchTab(tabId) {
   if (view) {
     view.hidden = false;
   }
-  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
-  if (btn) {
+  document.querySelectorAll(`.tab-btn[data-tab="${tabId}"]`).forEach((btn) => {
     btn.classList.add("active");
-  }
+  });
 }
 
 function updateSessionUi() {
   const loggedIn = Boolean(state.user);
-  $("auth-section").hidden = loggedIn;
-  $("nav-tabs").hidden = !loggedIn;
+  $("logged-out-tabs").hidden = loggedIn;
+  $("logged-in-tabs").hidden = !loggedIn;
   $("post-form").hidden = !loggedIn;
   $("logout-btn").hidden = !loggedIn;
 
@@ -128,16 +127,18 @@ function updateSessionUi() {
 
     if (activeTab === "tab-admin" && !isAdmin) {
       switchTab("tab-notes");
+    } else if (activeTab === "tab-login" || activeTab === "tab-register" || !activeTab) {
+      switchTab("tab-notes");
     } else {
-      switchTab(activeTab || "tab-notes");
+      switchTab(activeTab);
     }
   } else {
     $("session-info").textContent = "Not signed in";
-    document.querySelectorAll(".tab-view").forEach((v) => {
-      v.hidden = true;
-    });
-    $("tab-posts").hidden = false;
-    activeTab = "tab-notes";
+    if (activeTab !== "tab-login" && activeTab !== "tab-register" && activeTab !== "tab-posts") {
+      switchTab("tab-login");
+    } else {
+      switchTab(activeTab);
+    }
   }
 }
 
@@ -397,6 +398,9 @@ async function loadPosts() {
         makeButton("Author Posts ($lookup)", async () => {
           $("lookup-user-id").value = post.userId;
           state.userPostsPage = 1;
+          if (state.user) {
+            switchTab("tab-scenarios");
+          }
           await loadUserPosts();
         })
       ];
@@ -716,6 +720,22 @@ function bindEvents() {
 
   $("login-form").addEventListener("submit", handleLogin);
   $("register-form").addEventListener("submit", handleRegister);
+
+  const toReg = $("go-to-register");
+  if (toReg) {
+    toReg.addEventListener("click", (e) => {
+      e.preventDefault();
+      switchTab("tab-register");
+    });
+  }
+  const toLogin = $("go-to-login");
+  if (toLogin) {
+    toLogin.addEventListener("click", (e) => {
+      e.preventDefault();
+      switchTab("tab-login");
+    });
+  }
+
   $("profile-form").addEventListener("submit", handleProfileUpdate);
 
   $("note-form").addEventListener("submit", handleNoteSubmit);
