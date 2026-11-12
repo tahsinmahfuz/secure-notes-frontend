@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Notes API Console</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <strong>Secure Notes</strong>
+      <span id="session-info">Not signed in</span>
+    </div>
+    <div class="api-config">
+      <label for="api-base-input">API URL:</label>
+      <input id="api-base-input" type="text" placeholder="Same origin (or https://api-host)">
+      <button id="save-api-btn" type="button">Set</button>
+      <button id="logout-btn" type="button" hidden>Logout</button>
+    </div>
+  </header>
+
+  <div id="status-bar" class="status-bar" hidden></div>
+
+  <main class="container">
+    <section id="auth-section" class="grid-2">
+      <div class="panel">
+        <h2>Login</h2>
+        <form id="login-form">
+          <label>Email
+            <input id="login-email" type="email" required>
+          </label>
+          <label>Password
+            <input id="login-password" type="password" required>
+          </label>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2>Register</h2>
+        <form id="register-form">
+          <label>Name
+            <input id="reg-name" type="text" required>
+          </label>
+          <label>Email
+            <input id="reg-email" type="email" required>
+          </label>
+          <label>Password (min 6 chars)
+            <input id="reg-password" type="password" minlength="6" required>
+          </label>
+          <label>Interests (comma-separated)
+            <input id="reg-interests" type="text" placeholder="chess, reading">
+          </label>
+          <button type="submit">Register</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="profile-section" class="panel" hidden>
+      <h2>Profile</h2>
+      <div class="mono" id="profile-meta"></div>
+      <form id="profile-form" class="inline-form">
+        <label>Name
+          <input id="profile-name" type="text" required>
+        </label>
+        <label>Interests (comma-separated)
+          <input id="profile-interests" type="text" placeholder="chess, reading">
+        </label>
+        <button type="submit">Update Profile</button>
+      </form>
+    </section>
+
+    <section id="notes-section" class="panel" hidden>
+      <h2>My Notes</h2>
+      <form id="note-form">
+        <input id="note-id" type="hidden">
+        <label>Title
+          <input id="note-title" type="text" required>
+        </label>
+        <label>Content
+          <textarea id="note-content" rows="3" required></textarea>
+        </label>
+        <div class="actions">
+          <button type="submit" id="note-submit-btn">Create Note</button>
+          <button type="button" id="note-cancel-btn" hidden>Cancel Edit</button>
+        </div>
+      </form>
+
+      <div class="inline-form lookup-bar">
+        <label>Read Note by ID
+          <input id="note-lookup-id" type="text" placeholder="24-char ObjectId">
+        </label>
+        <button type="button" id="note-lookup-btn">GET /api/notes/{id}</button>
+      </div>
+      <pre id="note-lookup-result" class="code-box" hidden></pre>
+
+      <div class="list-header">
+        <span>Page <span id="notes-page-num">1</span> of <span id="notes-total-pages">1</span> (<span id="notes-total-count">0</span> total)</span>
+        <div class="actions">
+          <button type="button" id="notes-prev-btn">Prev</button>
+          <button type="button" id="notes-next-btn">Next</button>
+          <button type="button" id="notes-refresh-btn">Refresh</button>
+        </div>
+      </div>
+      <div id="notes-list" class="item-list"></div>
+    </section>
+
+    <section id="posts-section" class="panel">
+      <h2>Public Posts</h2>
+      <form id="post-form" hidden>
+        <input id="post-id" type="hidden">
+        <label>Title
+          <input id="post-title" type="text" required>
+        </label>
+        <label>Content
+          <textarea id="post-content" rows="3" required></textarea>
+        </label>
+        <div class="actions">
+          <button type="submit" id="post-submit-btn">Create Post</button>
+          <button type="button" id="post-cancel-btn" hidden>Cancel Edit</button>
+        </div>
+      </form>
+
+      <div class="list-header">
+        <span>Page <span id="posts-page-num">1</span> of <span id="posts-total-pages">1</span> (<span id="posts-total-count">0</span> total)</span>
+        <div class="actions">
+          <button type="button" id="posts-prev-btn">Prev</button>
+          <button type="button" id="posts-next-btn">Next</button>
+          <button type="button" id="posts-refresh-btn">Refresh</button>
+        </div>
+      </div>
+      <div id="posts-list" class="item-list"></div>
+    </section>
+
+    <section class="grid-2">
+      <div id="interests-section" class="panel" hidden>
+        <h2>Scenario 1: Users Grouped by Interests</h2>
+        <div class="list-header">
+          <span>Page <span id="interests-page-num">1</span> of <span id="interests-total-pages">1</span> (<span id="interests-total-count">0</span> groups)</span>
+          <div class="actions">
+            <button type="button" id="interests-prev-btn">Prev</button>
+            <button type="button" id="interests-next-btn">Next</button>
+            <button type="button" id="interests-load-btn">Load Groups</button>
+          </div>
+        </div>
+        <div id="interests-list" class="item-list"></div>
+      </div>
+
+      <div id="user-posts-section" class="panel">
+        <h2>Scenario 2: User Posts ($lookup)</h2>
+        <div class="inline-form">
+          <label>User ID
+            <input id="lookup-user-id" type="text" placeholder="24-char User ObjectId">
+          </label>
+          <button type="button" id="lookup-posts-btn">Fetch User Posts</button>
+        </div>
+        <div id="user-posts-header" class="mono"></div>
+        <div class="list-header" id="user-posts-pager" hidden>
+          <span>Page <span id="user-posts-page-num">1</span></span>
+          <div class="actions">
+            <button type="button" id="user-posts-prev-btn">Prev</button>
+            <button type="button" id="user-posts-next-btn">Next</button>
+          </div>
+        </div>
+        <div id="user-posts-list" class="item-list"></div>
+      </div>
+    </section>
+
+    <section id="admin-section" class="panel" hidden>
+      <h2>Admin Panel</h2>
+
+      <h3>Manage Users</h3>
+      <form id="admin-user-form">
+        <input id="admin-user-id" type="hidden">
+        <div class="grid-2">
+          <label>Name
+            <input id="admin-user-name" type="text" required>
+          </label>
+          <label>Email
+            <input id="admin-user-email" type="email" required>
+          </label>
+          <label>Password (leave blank to keep on edit)
+            <input id="admin-user-password" type="password">
+          </label>
+          <label>Role
+            <select id="admin-user-role">
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </label>
+        </div>
+        <label>Interests (comma-separated)
+          <input id="admin-user-interests" type="text" placeholder="chess, reading">
+        </label>
+        <div class="actions">
+          <button type="submit" id="admin-user-submit-btn">Create User</button>
+          <button type="button" id="admin-user-cancel-btn" hidden>Cancel Edit</button>
+        </div>
+      </form>
+
+      <div class="list-header">
+        <span>Page <span id="admin-users-page-num">1</span> of <span id="admin-users-total-pages">1</span> (<span id="admin-users-total-count">0</span> total)</span>
+        <div class="actions">
+          <button type="button" id="admin-users-prev-btn">Prev</button>
+          <button type="button" id="admin-users-next-btn">Next</button>
+          <button type="button" id="admin-users-refresh-btn">Refresh Users</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Interests</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="admin-users-tbody"></tbody>
+        </table>
+      </div>
+
+      <h3>All Users Notes</h3>
+      <div class="inline-form">
+        <label>Filter by User ID (optional)
+          <input id="admin-notes-userid" type="text" placeholder="Leave blank for all">
+        </label>
+        <button type="button" id="admin-notes-refresh-btn">Load Notes</button>
+      </div>
+      <div class="list-header">
+        <span>Page <span id="admin-notes-page-num">1</span> of <span id="admin-notes-total-pages">1</span> (<span id="admin-notes-total-count">0</span> total)</span>
+        <div class="actions">
+          <button type="button" id="admin-notes-prev-btn">Prev</button>
+          <button type="button" id="admin-notes-next-btn">Next</button>
+        </div>
+      </div>
+      <div id="admin-notes-list" class="item-list"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
