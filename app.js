@@ -89,25 +89,55 @@ async function apiRequest(path, options = {}) {
   return data;
 }
 
+let activeTab = "tab-notes";
+
+function switchTab(tabId) {
+  activeTab = tabId;
+  document.querySelectorAll(".tab-view").forEach((v) => {
+    v.hidden = true;
+  });
+  document.querySelectorAll(".tab-btn").forEach((b) => {
+    b.classList.remove("active");
+  });
+
+  const view = $(tabId);
+  if (view) {
+    view.hidden = false;
+  }
+  const btn = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+  if (btn) {
+    btn.classList.add("active");
+  }
+}
+
 function updateSessionUi() {
   const loggedIn = Boolean(state.user);
   $("auth-section").hidden = loggedIn;
-  $("profile-section").hidden = !loggedIn;
-  $("notes-section").hidden = !loggedIn;
+  $("nav-tabs").hidden = !loggedIn;
   $("post-form").hidden = !loggedIn;
-  $("interests-section").hidden = !loggedIn;
   $("logout-btn").hidden = !loggedIn;
 
   const isAdmin = loggedIn && state.user.role === "Admin";
-  $("admin-section").hidden = !isAdmin;
+  $("admin-tab-btn").hidden = !isAdmin;
 
   if (loggedIn) {
     $("session-info").textContent = `${state.user.name} (${state.user.email}) [${state.user.role}]`;
     $("profile-meta").textContent = `ID: ${state.user.id} | Role: ${state.user.role}`;
     $("profile-name").value = state.user.name;
     $("profile-interests").value = (state.user.interests || []).join(", ");
+
+    if (activeTab === "tab-admin" && !isAdmin) {
+      switchTab("tab-notes");
+    } else {
+      switchTab(activeTab || "tab-notes");
+    }
   } else {
     $("session-info").textContent = "Not signed in";
+    document.querySelectorAll(".tab-view").forEach((v) => {
+      v.hidden = true;
+    });
+    $("tab-posts").hidden = false;
+    activeTab = "tab-notes";
   }
 }
 
@@ -660,6 +690,15 @@ async function loadAdminNotes() {
 }
 
 function bindEvents() {
+  document.querySelectorAll(".tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tabId = btn.getAttribute("data-tab");
+      if (tabId) {
+        switchTab(tabId);
+      }
+    });
+  });
+
   $("save-api-btn").addEventListener("click", async () => {
     state.apiBaseUrl = $("api-base-input").value.trim().replace(/\/+$/, "");
     localStorage.setItem(STORAGE_API_KEY, state.apiBaseUrl);

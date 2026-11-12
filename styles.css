@@ -26,6 +26,46 @@ body {
   background-color: #f6f8fa;
 }
 
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background-color: #f6f8fa;
+  border-bottom: 1px solid #d0d7de;
+  padding: 0 16px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #57606a;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  color: #1f2328;
+  background-color: #eaeef2;
+}
+
+.tab-btn.active {
+  color: #0969da;
+  border-bottom-color: #0969da;
+  font-weight: 600;
+  background-color: #ffffff;
+}
+
+.tab-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .topbar #session-info {
   margin-left: 10px;
   color: #57606a;
